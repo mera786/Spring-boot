@@ -1,0 +1,41 @@
+Q1. Layerd Architecture ?
+   
+                               +----------+       +----------+        +----------+     +----------+
+                               |  DTO     |       |  Utility |        |  Entity  |     |  Config  |
+                               +----------+       +----------+        +----------+     +----------+          
+                                     ↑                ↑                    ↑               ↑
+                               +--------------------------------------------------------------------+
++----------+                   |  +--------------------+  +-----------------+  +------------------+  |
+|  Client  |------------------>|  |  Controller Layer  |  |  Service Layer  |  | Repository Layer |  |
++----------+                   |  +--------------------+  +-----------------+  +-------|----------+  |
+                               +-------------------------------------------------------|-------------+
+                                                                                       |
+                                                                                       |
+                                                                                       |
+                                                                   +----------+        |
+                                                                   |  DB      |  ←------
+                                                                   +----------+
+
+
+Q2. UnderStanding Beans and ApplicationContext ?
+     a. What is bean ?
+     Bean is nothing but java object , when you java object is managed by spring ioc called bean.
+
+   b. Spring Ioc container ?
+      bean life cycle is manged by Spring ioc container like, bean creation, bean injection, bean deletion everything will be handle by the spring ioc container.
+      spring ioc container is a kind of terminology when it comes to actual implementation then spring ioc container implementation will be Application context. or beanfactory..etc.
+
+   c. How to create Beans ?
+      there are 2 ways :
+        1. using @Component even other sterotype annotation eventually those also internally use @Component
+        2. @Configuration @Bean
+
+
+    d. How to check if the beans are present in application ?
+         1. using actuator
+         2. using object of application context.
+
+
+
+
+
