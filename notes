@@ -35,6 +35,81 @@ Q2. UnderStanding Beans and ApplicationContext ?
          1. using actuator
          2. using object of application context.
 
+Q3. Bean lifeCycle :
+                    
+                             +----------------------+ 
+                             | Configuration loaded |
+                             +----------------------+ 
+                                       |
+                                       |
+                                       v
++--------------------+       +-----------------------+       +----------------+       +-------------------------------------------+
+| Application Start  | ----> | IOC Container Started | ----> | Construct Bean | ----> | Injected Dependency into Constructed Bean |
++--------------------+       +-----------------------+       +----------------+       +-------------------------------------------+
+                                                                                                           |
+                                                                                                           |
+                                                                                                           v
+                            +----------------+       +-------------+       +--------------+       +----------------+
+                            | Bean Destroyed | <---- | @PreDestroy | <---- | Use The Bean | <---- | @PostConstruct |
+                            +----------------+       +-------------+       +--------------+       +----------------+
+
+
+
+
+Q4. dependency injection ?
+
+Why  ?
+ - suppose order is a class and it's bean simply creating in user that's fine. but what if in feature order class converted into order interface then it's bean can't be created, however
+   if i have online-order class which can be implement order interface then it's in user class Order order = new OnlineOrder(); can be created but it breaks one solid principle
+   dependency inversion rule of SOLID principle which say don't dependend on concrete implementation , rather dependens on abstraction, that's the reason for dependency injection
+   comes into picture.
+Types :
+there are 3 types :
+ a. Field injection
+ b. setter injection
+ c. constructor injection
+
+ a. Field injection : 
+        - dependency is set into fields of class
+        - advantage : simple and easy to use.
+        disadvantage : 
+                   - can't be used with immutable fields.
+                   - changes of getting null pointer exception (NPE).
+b. setter injection :
+        - dependency is set using setter of field. and annotate setter method with @Autowired.
+        - advantage : dependency can be changes any time after object creation. easy for junit testing becoz we can pass mock object in dependency easily.
+        disadvantage : 
+                   - field can't be marked as final.
+                   - dificult to read and maintained as per standard.
+ c. constructor injection :
+                    - dependency will be resolved at the time of intialization of object 
+                    - it is recommended.
+                    - when 1 constructor is present , @Autowired is not mandatory. if more than 1 constructor then mandatory to use @Autowired
+                    - advantage : 
+                               - all mandatory dependencies will be injected at the time of intialization itself.
+                               - makes 100 percent sure that our object will be initialized with all the required dependencies.
+                               - Avoid NPE
+                               - we can create immutable objects using constructor injection.
+                               - fail fast - fail at compilation only in case of missing dependencies.
+
+What all problem faced during DI?
+ a. Circular Dependency inject :
+                       - it can be resolve using @Lazy and @PostConstruct
+ b. unsatisfied dependency :
+                       - Unsatisfied Dependency occurs when Spring cannot inject a dependency because no matching bean or multiple ambiguous beans are found.
+                       - Common Causes:
+                                    - Bean not created (@Component / @Service missing)
+                                    - Package not scanned
+                                    - Multiple implementations of an interface
+                                    - Wrong bean name
+                       - Resolution:
+                                    - Ensure bean is annotated properly (@Component, @Service, @Repository)
+                                    - Fix component scanning (@ComponentScan)
+                                    - Use @Qualifier to specify exact bean
+                                    - Use @Primary to mark default bean
+                                    - Check correct package structure.
+
+    
 
 
 
