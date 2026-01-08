@@ -35,28 +35,9 @@ Q2. UnderStanding Beans and ApplicationContext ?
          1. using actuator
          2. using object of application context.
 
-Q3. Bean lifeCycle :
-                    
-                             +----------------------+ 
-                             | Configuration loaded |
-                             +----------------------+ 
-                                       |
-                                       |
-                                       v
-+--------------------+       +-----------------------+       +----------------+       +-------------------------------------------+
-| Application Start  | ----> | IOC Container Started | ----> | Construct Bean | ----> | Injected Dependency into Constructed Bean |
-+--------------------+       +-----------------------+       +----------------+       +-------------------------------------------+
-                                                                                                           |
-                                                                                                           |
-                                                                                                           v
-                            +----------------+       +-------------+       +--------------+       +----------------+
-                            | Bean Destroyed | <---- | @PreDestroy | <---- | Use The Bean | <---- | @PostConstruct |
-                            +----------------+       +-------------+       +--------------+       +----------------+
 
 
-
-
-Q4. dependency injection ?
+Q3. dependency injection ?
 
 Why  ?
  - suppose order is a class and it's bean simply creating in user that's fine. but what if in feature order class converted into order interface then it's bean can't be created, however
@@ -109,8 +90,97 @@ What all problem faced during DI?
                                     - Use @Primary to mark default bean
                                     - Check correct package structure.
 
-    
 
+Q4. ComponentScan :
+
+  what ?
+    - @ComponentScan is a Spring annotation used to tell Spring where to search for beans/components.
+    - It enables automatic detection of classes annotated with @Component, @Service, @Repository, @Controller, etc.
+    - It works during classpath scanning, registering detected classes into the Spring IoC container.
+  use ?
+    - To avoid manual bean configuration in XML or Java config.
+    - To organize code in multiple packages and still allow Spring to detect beans.
+    - @ComponentScan should be used along with @Configuration annotation.
+  componentScan arguments ?
+               - basePackage :
+                         - Specifies which packages Spring should scan to find components.
+                         - @ComponentScan(basePackages = {"com.app.service", "com.app.repository"})
+                         - Spring will scan only these packages and their subpackages.
+               - excludeFilters : 
+                         - Tells Spring which components NOT to register as beans during scanning.
+                         - You want to exclude specific classes, Or exclude annotations, for example @Controller.
+                         - ex :   excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Controller.class)  / 
+                                                                  excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = TestService.class)
+
+
+Q5. Customizing Bean Nature ?
+
+
+ Bean lifeCycle :
+                    
+                                +----------------------+ 
+                                | Businees Object(PoJo) |
+                                +----------------------+ 
+                                           |
+                                           |
+                                           v
+                            |-------------------------------|
+                            |                               |
++--------------------+      |   +-----------------------+   |       
+| Configuration       |     |   | IOC Container Started |   |
+| Metadata(annotation)|---->|   +-----------------------+   |                               
++--------------------+      |     +----------------+        |                                     
+                            |     | Bean Creation  |        |                                                                   
+                            |     +----------------+        |                                                                 
+                            |    +----------------------+   | 
+                            |    | Dependency Injection |   |                
+                            |    +----------------------+   |
+                            +-------------------------------+   
+                                            |
+                                            |
+                                            v
+                                 +---------------------+            
+                                 |custom Action        |   InitializationBean/@PostConstruct
+                                 | after Bean creation |                                                                 
+                                 +---------------------+                                        
+                                            |
+                                            |
+                                            v 
+                                 +---------------------+      +-----------------------------------+       +----------------+        +------------------+ 
+                                 | ready to use system |----> | custom action before destroy Bean | ----> | Bean destroyed | ---->  | Application stop | 
+                                 +---------------------+      +-----------------------------------+       +----------------+        +------------------+         
+                                                                     DisposableBean/@PreDestroy
+what are custom actions while bean creation ?
+   - let the bean perform certain actions upon intialization and destruction of your beans.
+   - perfrom action after bean creation.
+   - perfrom action before destroying bean.
+
+ Interfaces to customize bean nature ?
+  a. InitializationBean : implement this interface for custom Action after bean creation.
+  b. DisposableBean  :  implement this interface for custom action before destroy Bean
+Note: in modern way instead of InitializationBean use @PostConstruct and instead of DisposableBean use @PreDestroy
+
+
+Q6. Spring Bean Scope :
+
+  scope of beans ?
+   - How long a bean lives and how many times Spring creates it.
+   - there are 4 types :
+            - SingleTon : 
+                    - only one instance of the bean is created, and the same instance is reused everywhere it is injected.
+                    - Default scope in Spring is Singleton (even if you don’t mention @Scope("singleton").
+                    - it support eager intialization.
+Prototype
+Request (Web scope)
+Session (Web scope)
+
+
+
+
+
+
+
+ 
 
 
 
