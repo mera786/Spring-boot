@@ -163,18 +163,70 @@ Note: in modern way instead of InitializationBean use @PostConstruct and instead
 
 Q6. Spring Bean Scope :
 
-  scope of beans ?
+  when beans will get created ?
+                                    +---------------+
+                                    | Bean Creation |
+                                    +---------------+
+                                          |
+                                          |
+                                          v
+                       |------------------|--------------------------|
+                       |                                             |
+             +----------------------+                       +----------------------+
+             | Eager Initialization |                       | lazy Initialization  |
+             +----------------------+                       +----------------------+
+- when we start the application                           - when beans are needed.
+- eg beans with singleton scope                           - eg beans with prototype or session
+                                                          - @Lazy annotation
+
+
+scope of beans ?
    - How long a bean lives and how many times Spring creates it.
    - there are 4 types :
             - SingleTon : 
                     - only one instance of the bean is created, and the same instance is reused everywhere it is injected.
                     - Default scope in Spring is Singleton (even if you don’t mention @Scope("singleton").
                     - it support eager intialization.
-Prototype
+            - Prototype :
+                    - each time new objected.
+                    - lazily intialized : new object is created each time. when needed.
 Request (Web scope)
 Session (Web scope)
 
 
+
+Q7. @ConditionalOnProperty annotations :
+
+    what is ConditionalOnProperty ?
+                - bean is created conditionally.
+
+    scinario :
+           - we want to create only one bean. either MysqlConnection class bean or NoSqlConnection class bean.
+           - we have 2 components sharing same db, but 1 need MysqlConnection and other need NoSqlConnection.
+   ex -
+@Component
+@ConditionalOnProperty(prefix = "sqlconnection",
+        value = "enabled",
+        havingValue = "true",
+        matchIfMissing = false)
+public class MysqlConnection {}
+Note:- 
+in properties file : sqlconnection.enabled=false
+
+
+Q8. Spring profiles :
+
+  how to configure profile configuration dynamically ? becoz in production we can't open yml file and change.
+         there are 2 ways :
+                     - 1 while application start up using command
+                     - mvn spring-boot:run -Dspring-boot.run.profiles=prod                     
+              
+                    - another one is : add profile in pom.xml
+                    - and run using mvn spring-boot:run -<Pproduction it is a id in pom.xml file provided id>
+ @Profile annotation :
+      using profile annotation we can tell spring boot, to create a bean only when particular profile is set.
+
+ 
 
 
 
