@@ -1,0 +1,237 @@
+Q1. Layerd Architecture ?
+   
+                               +----------+       +----------+        +----------+     +----------+
+                               |  DTO     |       |  Utility |        |  Entity  |     |  Config  |
+                               +----------+       +----------+        +----------+     +----------+          
+                                     ↑                ↑                    ↑               ↑
+                               +--------------------------------------------------------------------+
++----------+                   |  +--------------------+  +-----------------+  +------------------+  |
+|  Client  |------------------>|  |  Controller Layer  |  |  Service Layer  |  | Repository Layer |  |
++----------+                   |  +--------------------+  +-----------------+  +-------|----------+  |
+                               +-------------------------------------------------------|-------------+
+                                                                                       |
+                                                                                       |
+                                                                                       |
+                                                                   +----------+        |
+                                                                   |  DB      |  ←------
+                                                                   +----------+
+
+
+Q2. UnderStanding Beans and ApplicationContext ?
+     a. What is bean ?
+     Bean is nothing but java object , when you java object is managed by spring ioc called bean.
+
+   b. Spring Ioc container ?
+      bean life cycle is manged by Spring ioc container like, bean creation, bean injection, bean deletion everything will be handle by the spring ioc container.
+      spring ioc container is a kind of terminology when it comes to actual implementation then spring ioc container implementation will be Application context. or beanfactory..etc.
+
+   c. How to create Beans ?
+      there are 2 ways :
+        1. using @Component even other sterotype annotation eventually those also internally use @Component
+        2. @Configuration @Bean
+
+
+    d. How to check if the beans are present in application ?
+         1. using actuator
+         2. using object of application context.
+
+
+
+Q3. dependency injection ?
+
+Why  ?
+ - suppose order is a class and it's bean simply creating in user that's fine. but what if in feature order class converted into order interface then it's bean can't be created, however
+   if i have online-order class which can be implement order interface then it's in user class Order order = new OnlineOrder(); can be created but it breaks one solid principle
+   dependency inversion rule of SOLID principle which say don't dependend on concrete implementation , rather dependens on abstraction, that's the reason for dependency injection
+   comes into picture.
+Types :
+there are 3 types :
+ a. Field injection
+ b. setter injection
+ c. constructor injection
+
+ a. Field injection : 
+        - dependency is set into fields of class
+        - advantage : simple and easy to use.
+        disadvantage : 
+                   - can't be used with immutable fields.
+                   - changes of getting null pointer exception (NPE).
+b. setter injection :
+        - dependency is set using setter of field. and annotate setter method with @Autowired.
+        - advantage : dependency can be changes any time after object creation. easy for junit testing becoz we can pass mock object in dependency easily.
+        disadvantage : 
+                   - field can't be marked as final.
+                   - dificult to read and maintained as per standard.
+ c. constructor injection :
+                    - dependency will be resolved at the time of intialization of object 
+                    - it is recommended.
+                    - when 1 constructor is present , @Autowired is not mandatory. if more than 1 constructor then mandatory to use @Autowired
+                    - advantage : 
+                               - all mandatory dependencies will be injected at the time of intialization itself.
+                               - makes 100 percent sure that our object will be initialized with all the required dependencies.
+                               - Avoid NPE
+                               - we can create immutable objects using constructor injection.
+                               - fail fast - fail at compilation only in case of missing dependencies.
+
+What all problem faced during DI?
+ a. Circular Dependency inject :
+                       - it can be resolve using @Lazy and @PostConstruct
+ b. unsatisfied dependency :
+                       - Unsatisfied Dependency occurs when Spring cannot inject a dependency because no matching bean or multiple ambiguous beans are found.
+                       - Common Causes:
+                                    - Bean not created (@Component / @Service missing)
+                                    - Package not scanned
+                                    - Multiple implementations of an interface
+                                    - Wrong bean name
+                       - Resolution:
+                                    - Ensure bean is annotated properly (@Component, @Service, @Repository)
+                                    - Fix component scanning (@ComponentScan)
+                                    - Use @Qualifier to specify exact bean
+                                    - Use @Primary to mark default bean
+                                    - Check correct package structure.
+
+
+Q4. ComponentScan :
+
+  what ?
+    - @ComponentScan is a Spring annotation used to tell Spring where to search for beans/components.
+    - It enables automatic detection of classes annotated with @Component, @Service, @Repository, @Controller, etc.
+    - It works during classpath scanning, registering detected classes into the Spring IoC container.
+  use ?
+    - To avoid manual bean configuration in XML or Java config.
+    - To organize code in multiple packages and still allow Spring to detect beans.
+    - @ComponentScan should be used along with @Configuration annotation.
+  componentScan arguments ?
+               - basePackage :
+                         - Specifies which packages Spring should scan to find components.
+                         - @ComponentScan(basePackages = {"com.app.service", "com.app.repository"})
+                         - Spring will scan only these packages and their subpackages.
+               - excludeFilters : 
+                         - Tells Spring which components NOT to register as beans during scanning.
+                         - You want to exclude specific classes, Or exclude annotations, for example @Controller.
+                         - ex :   excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Controller.class)  / 
+                                                                  excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = TestService.class)
+
+
+Q5. Customizing Bean Nature ?
+
+
+ Bean lifeCycle :
+                    
+                                +----------------------+ 
+                                | Businees Object(PoJo) |
+                                +----------------------+ 
+                                           |
+                                           |
+                                           v
+                            |-------------------------------|
+                            |                               |
++--------------------+      |   +-----------------------+   |       
+| Configuration       |     |   | IOC Container Started |   |
+| Metadata(annotation)|---->|   +-----------------------+   |                               
++--------------------+      |     +----------------+        |                                     
+                            |     | Bean Creation  |        |                                                                   
+                            |     +----------------+        |                                                                 
+                            |    +----------------------+   | 
+                            |    | Dependency Injection |   |                
+                            |    +----------------------+   |
+                            +-------------------------------+   
+                                            |
+                                            |
+                                            v
+                                 +---------------------+            
+                                 |custom Action        |   InitializationBean/@PostConstruct
+                                 | after Bean creation |                                                                 
+                                 +---------------------+                                        
+                                            |
+                                            |
+                                            v 
+                                 +---------------------+      +-----------------------------------+       +----------------+        +------------------+ 
+                                 | ready to use system |----> | custom action before destroy Bean | ----> | Bean destroyed | ---->  | Application stop | 
+                                 +---------------------+      +-----------------------------------+       +----------------+        +------------------+         
+                                                                     DisposableBean/@PreDestroy
+what are custom actions while bean creation ?
+   - let the bean perform certain actions upon intialization and destruction of your beans.
+   - perfrom action after bean creation.
+   - perfrom action before destroying bean.
+
+ Interfaces to customize bean nature ?
+  a. InitializationBean : implement this interface for custom Action after bean creation.
+  b. DisposableBean  :  implement this interface for custom action before destroy Bean
+Note: in modern way instead of InitializationBean use @PostConstruct and instead of DisposableBean use @PreDestroy
+
+
+Q6. Spring Bean Scope :
+
+  when beans will get created ?
+                                    +---------------+
+                                    | Bean Creation |
+                                    +---------------+
+                                          |
+                                          |
+                                          v
+                       |------------------|--------------------------|
+                       |                                             |
+             +----------------------+                       +----------------------+
+             | Eager Initialization |                       | lazy Initialization  |
+             +----------------------+                       +----------------------+
+- when we start the application                           - when beans are needed.
+- eg beans with singleton scope                           - eg beans with prototype or session
+                                                          - @Lazy annotation
+
+
+scope of beans ?
+   - How long a bean lives and how many times Spring creates it.
+   - there are 4 types :
+            - SingleTon : 
+                    - only one instance of the bean is created, and the same instance is reused everywhere it is injected.
+                    - Default scope in Spring is Singleton (even if you don’t mention @Scope("singleton").
+                    - it support eager intialization.
+            - Prototype :
+                    - each time new objected.
+                    - lazily intialized : new object is created each time. when needed.
+Request (Web scope)
+Session (Web scope)
+
+
+
+Q7. @ConditionalOnProperty annotations :
+
+    what is ConditionalOnProperty ?
+                - bean is created conditionally.
+
+    scinario :
+           - we want to create only one bean. either MysqlConnection class bean or NoSqlConnection class bean.
+           - we have 2 components sharing same db, but 1 need MysqlConnection and other need NoSqlConnection.
+   ex -
+@Component
+@ConditionalOnProperty(prefix = "sqlconnection",
+        value = "enabled",
+        havingValue = "true",
+        matchIfMissing = false)
+public class MysqlConnection {}
+Note:- 
+in properties file : sqlconnection.enabled=false
+
+
+Q8. Spring profiles :
+
+  how to configure profile configuration dynamically ? becoz in production we can't open yml file and change.
+         there are 2 ways :
+                     - 1 while application start up using command
+                     - mvn spring-boot:run -Dspring-boot.run.profiles=prod                     
+              
+                    - another one is : add profile in pom.xml
+                    - and run using mvn spring-boot:run -<Pproduction it is a id in pom.xml file provided id>
+ @Profile annotation :
+      using profile annotation we can tell spring boot, to create a bean only when particular profile is set.
+
+ 
+
+
+
+ 
+Q. how to stop spring/spring boot project gracefully?
+In Spring Boot, graceful shutdown is enabled using
+server.shutdown=graceful.
+On receiving SIGTERM, the application stops accepting new requests, completes ongoing ones, executes cleanup callbacks like @PreDestroy, and shuts down safely.
