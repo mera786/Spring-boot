@@ -233,7 +233,7 @@ Q9. Spring Transaction & @Transactional annotation:
             critical operations or code sections where problem arise ?
                  - code segment where shared resources are being accessed and modified.
                     { 
-                           red flight seat with id 1/2/..
+                           read flight seat with id 1/2/..
                              if seatStatus is available
                                     update to booked
                      }
@@ -262,6 +262,14 @@ Isolation :
 @Transactional :
        - @Transactional is Spring’s way to manage transactions automatically because it uses Spring AOP.
        - You don’t manually write: commit, rollback. Spring handles it for you.
+       - Internally delegates transaction operations to a PlatformTransactionManager.
+       - When Spring sees @Transactional:
+                                  - It creates a proxy around your bean.
+                                  - The proxy intercepts method calls.
+                                  - The real object is NOT called directly
+                                  - This is done using:
+                                                   - JDK Dynamic Proxy (if interface exists)
+                                                   - CGLIB Proxy (if no interface).
        - Where Can @Transactional Be Applied? :
                                 - Method Level (Most Common).
                                 - Class Level 
@@ -333,10 +341,20 @@ Types of Transaction Manager :
                              - spring boot will choose appropriate transaction manager.
                              - we can create explicit transaction manager and tell spring to choose that.
                  - Programmatic :
-                             -       START FROM 13 MINUTES.
-                             - 
-                             - 
-                             - 
+                             - handle Transaction programmatically through code.      
+                             - flexible but difficult to maintain.
+                             - which case to use this ? very specific case
+                             - eg :  @Component
+                                    public class User{
+                                        @Transactional
+                                        public void updateUser(){
+                                            // 1. Update DB.
+                                            // 2. External Api call through restTemplate.
+                                            // 3. Update DB.
+                                        }
+                                    }
+                            - there are two approches for programmatic .
+                                                    -  
 
 
                
