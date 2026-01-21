@@ -301,7 +301,8 @@ Types of Transaction Manager :
                                         }
                                     }
                             - there are two approches for programmatic .
-                                                    -  
+                                                    - Using PlatformTransactionManager (Low-level / Manual):
+                                                    - Using TransactionTemplate (Recommended way) : 
 
 
                
