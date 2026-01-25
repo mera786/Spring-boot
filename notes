@@ -1,3 +1,31 @@
+Q. How spring boot calls externals APi ?
+There are 4 major built-in approaches in spring boot :
+  a. RestTemplate :
+               - introduced in spring 3.0
+               - used heavily till spring boot 2.x
+               - deprecated (not removed) from spring 5+
+               - simple & synchronous
+               - still found in 90% enterprises code bases.
+               - thread waits until API response Arrive.
+  b. WebClient :
+               - introduced in spring 5.0
+               - recommended approach
+               - non blocking
+               - reactive (uses project reactor)
+  c. RestClient :
+               - introduced in spring 6.1
+               - preferred blocking client
+               - designed for spring boot 4
+               - modern and fluent API
+               - replaces RestTemplate officially.
+  d. HttpExchange :
+               - declarative approach
+               - introduced in spring framework 6
+               - similar to feign but spring native
+               - clean and readable
+               - uses webclient internally.
+
+
 Q1. Layerd Architecture ?
    
                                +----------+       +----------+        +----------+     +----------+
